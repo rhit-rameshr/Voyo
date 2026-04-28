@@ -4,3 +4,4 @@ Pillow
 sqlalchemy
 argon2-cffi
 email-validator
+streamlit-cookies-manager

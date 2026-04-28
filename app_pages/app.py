@@ -12,6 +12,11 @@ import trips          # local trips.py
 import log_in         # local log_in.py 
 import recommendations
 
+import log_in
+
+if not log_in.cookies.ready():
+    st.stop()
+
 
 # App config
 logo_image = Image.open("images/voyoLogo.png")

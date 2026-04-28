@@ -159,12 +159,6 @@ def _trip_card(trip: dict, idx: int):
             if trip.get("notes"):
                 st.write(trip["notes"])
         with c2:
-            st.download_button(
-                "Export JSON",
-                data=json.dumps(trip, indent=2, ensure_ascii=False),
-                file_name=f"{title.replace(' ', '_')}.json",
-                use_container_width=True,
-            )
             if st.button("Delete", key=f"del_{idx}", use_container_width=True):
                 _delete_trip(idx)
 

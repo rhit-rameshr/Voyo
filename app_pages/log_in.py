@@ -3,6 +3,7 @@ from pathlib import Path
 import re
 import contextlib
 import streamlit as st
+from streamlit_cookies_manager import EncryptedCookieManager
 from sqlalchemy import (
     create_engine, Column, Integer, String, DateTime, func, UniqueConstraint
 )
@@ -39,6 +40,15 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 Base.metadata.create_all(engine)
+
+# ---------- Cookies ----------
+# Password comes from Streamlit secrets in prod, falls back to a dev default locally.
+_COOKIE_PASSWORD = st.secrets.get("COOKIE_PASSWORD", "vK9#mP2$xQ7@nL4&wR8!yT5^zJ3*hF6+bN1D0")
+
+cookies = EncryptedCookieManager(
+    prefix="voyo_",
+    password=_COOKIE_PASSWORD,
+)
 
 # ---------- Helpers ----------
 PASSWORD_POLICY = re.compile(
@@ -97,9 +107,38 @@ def authenticate(username_or_email, password):
                 return None
     return None
 
+def _restore_session_from_cookie():
+    """If no user in session but a valid cookie exists, restore the session."""
+    if st.session_state.get("user"):
+        return  # already logged in
+    user_id = cookies.get("user_id", "")
+    if not user_id:
+        return
+    try:
+        with get_db() as db:
+            user = db.query(User).filter(User.id == int(user_id)).first()
+            if user:
+                st.session_state["user"] = {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "name": f"{user.first_name} {user.last_name}",
+                }
+    except Exception:
+        # Corrupt or stale cookie — clear it
+        cookies["user_id"] = ""
+        cookies.save()
+
 
 # ---------- UI ----------
 def render():
+    # Wait for cookies to be ready before doing anything
+    if not cookies.ready():
+        st.stop()
+
+    # Restore login state from cookie on every page load
+    _restore_session_from_cookie()
+
     # Green button style
     st.markdown("""
         <style>
@@ -123,8 +162,10 @@ def render():
         st.write(f"**Username:** {user['username']}")
         st.write(f"**Email:** {user['email']}")
         if st.button("Log out"):
-            st.session_state.pop("user")
-            st.session_state.pop("trips", None)  
+            st.session_state.pop("user", None)
+            st.session_state.pop("trips", None)
+            cookies["user_id"] = ""
+            cookies.save()
             st.rerun()
         return
 
@@ -150,7 +191,9 @@ def render():
                     authed = authenticate(u, p)
                     if authed:
                         st.session_state["user"] = authed
-                        st.session_state.pop("trips", None)  
+                        st.session_state.pop("trips", None)
+                        cookies["user_id"] = str(authed["id"])
+                        cookies.save()
                         st.rerun()
                     else:
                         st.error("Invalid credentials.")
