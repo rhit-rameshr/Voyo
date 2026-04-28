@@ -1,0 +1,6 @@
+streamlit
+streamlit-option-menu
+Pillow
+sqlalchemy
+argon2-cffi
+email-validator
