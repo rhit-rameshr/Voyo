@@ -1,0 +1,40 @@
+[
+  {
+    "name": "Japan",
+    "start_date": "2026-04-27",
+    "end_date": "2026-04-27",
+    "departureCity": "San Francisco",
+    "notes": "",
+    "flights": [
+      {
+        "date": null,
+        "from": "",
+        "to": "",
+        "airline": "",
+        "flight_no": "",
+        "conf#": ""
+      }
+    ],
+    "hotels": [
+      {
+        "check_in": null,
+        "check_out": null,
+        "name": "",
+        "address": "",
+        "conf#": "",
+        "phone": ""
+      }
+    ],
+    "places": [],
+    "itinerary": [
+      {
+        "date": null,
+        "time": "",
+        "title": "",
+        "location": "",
+        "notes": ""
+      }
+    ],
+    "user_id": 3
+  }
+]
