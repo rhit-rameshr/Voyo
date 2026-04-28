@@ -11,11 +11,9 @@ sys.path.append(str(Path(__file__).resolve().parent))
 import trips          # local trips.py
 import log_in         # local log_in.py 
 import recommendations
-
 import log_in
 
-if not log_in.cookies.ready():
-    st.stop()
+
 
 
 # App config
@@ -28,6 +26,9 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+if not log_in.cookies.ready():
+    st.stop()
+    
 # Give buttons a consistent “Voyo green” vibe.
 st.markdown("""
 <style>
